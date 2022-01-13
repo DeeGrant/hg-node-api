@@ -1,18 +1,38 @@
 const express = require("express");
+const Todo = require('./todo.js')
 const app = express();
 const port = 3000;
-
 app.use(express.static('public'))
+
 app.use(express.json())
 
-// fake DB
-let todos = {}
+let todos = {}; //fake DB`
 
-app.get(':listName', (req, res) => {
-    checkList(todos[req.params.listName])
-    res.send(todos[req.params.listName]) // db call
+app.get("/:listName", (req, res) => {
+    checkList(req.params.listName)
+    res.send(todos[req.params.listName])
+});
+
+app.post("/:listName", (req, res) => {
+    console.log("create", req.body)
+    checkList(req.params.listName)
+    if (!checkValue(req.params.listName, req.query.id)) todos[req.params.listName].push(new Todo(req.body))
+    res.send(req.body)
+});
+
+app.put("/:listName", (req, res) => {
+    console.log("update", req.body)
+    checkList(req.params.listName)
+
+    todos[req.params.listName].forEach((item, index) => {
+        if (item.id == req.body.id) {
+            //console.log(item)
+            todos[req.params.listName][index] = req.body
+        }
+    })
+    res.send(req.body)
+
 })
-app.get("/something", (req, res) => res.send("Testing!"));
 
 app.listen(port, () =>
     console.log(`Example app listening at http://localhost:${port}`)
